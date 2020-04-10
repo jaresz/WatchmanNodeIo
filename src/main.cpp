@@ -80,7 +80,7 @@ void handleOTA() {
 	// ArduinoOTA.setPort(8266);
 
 	// Hostname defaults to esp8266-[ChipID]
-	ArduinoOTA.setHostname("Pilnik");
+	ArduinoOTA.setHostname("Rovero");
 
 	// No authentication by default
 	// ArduinoOTA.setPassword((const char *)"123");
@@ -272,12 +272,18 @@ void srvPage(WiFiClient client, int lightState[2], int ledState) {
 void srvStatus(WiFiClient client, int lightState[2], int ledState) {
 	// Return the response
 	client.println("HTTP/1.1 200 OK");
-	client.println("Content-Type: text/html");
+	client.println("Content-Type: application/json");
+	client.println("");
 
+	client.println("{");
+	client.println("name:\"state\"");
 	for (int nr = 0; nr < 2; nr++) {
-		client.println("State:");
+		client.print(nr);
+		client.print(":");
 		client.print(lightState[nr]);
+		client.println(",");
 	}
+	client.println("}");
 }
 
 
@@ -379,7 +385,7 @@ void loop() {
 	// Set LED_PIN according to the request
 	digitalWrite(LED_PIN, ledState);
 
-	if (request.indexOf("/status") != -1) {
+	if (request.indexOf("/status") != -1 || request.indexOf(".json") != -1) {
 		// Return the response
 		srvStatus(client, lightState, ledState);
 	} else {
