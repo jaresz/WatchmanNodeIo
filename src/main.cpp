@@ -278,9 +278,19 @@ void srvStatus(WiFiClient client, int lightState[2], int ledState) {
 	client.println("{");
 	client.println("name:\"state\"");
 	for (int nr = 0; nr < 2; nr++) {
+		client.print("light");
 		client.print(nr);
 		client.print(":");
 		client.print(lightState[nr]);
+		client.println(",");
+
+		
+	}
+	for (int nr = 0; nr < 2; nr++) {
+		client.print("pir");
+		client.print(nr);
+		client.print(":");
+		client.print(digitalRead(pirPin[nr]));
 		client.println(",");
 	}
 	client.println("}");
@@ -367,19 +377,14 @@ void loop() {
 	// Match the request
 
 	if (request.indexOf("/LED=ON") != -1) {
-		digitalWrite(LED_PIN, HIGH);
-		for (int i = 1; i < ledStripNumpixels[0]; i++) {
-			pixel[0].setPixelColor(i, pixel[0].Color(255, 0, 0));
-		}
-		pixel[0].show();
-
+		ledState = HIGH;
+		lightState[0] = LIGHT_TURNING_ON;
+		lightState[1] = LIGHT_TURNING_ON;
 	}
 	if (request.indexOf("/LED=OFF") != -1) {
-		digitalWrite(LED_PIN, LOW);
-		for (int i = 1; i < ledStripNumpixels[0]; i++) {
-			pixel[0].setPixelColor(i, pixel[0].Color(0, 0, 0));
-		}
-		pixel[0].show();
+		ledState = LOW;
+		lightState[0] = LIGHT_TURNING_OFF;
+		lightState[1] = LIGHT_TURNING_OFF;
 	}
 
 	// Set LED_PIN according to the request
